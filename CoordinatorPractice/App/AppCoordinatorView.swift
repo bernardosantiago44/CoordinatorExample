@@ -11,9 +11,18 @@ struct AppCoordinatorView: View {
     @Bindable var coordinator: AppCoordinator
     
     var body: some View {
-        // For now, we'll show only one Account, so display directly the AccountCoordinatorView.
-        // In the future we may have a TabCoordinator
-        AccountCoordinatorView(coordinator: self.coordinator.accountCoordinator)
+        TabView {
+            Tab("Home", systemImage: ViewTab.home.rawValue) {
+                AccountCoordinatorView(coordinator: self.coordinator.accountCoordinator)
+            }
+            
+            Tab("Settings", systemImage: ViewTab.settings.rawValue) {
+                SettingsView(coordinator: self.coordinator)
+            }
+        }
+        .fullScreenCover(isPresented: $coordinator.authenticationCoordinator.askForAuthentication) {
+            AuthenticationCoordinatorView(coordinator: coordinator.authenticationCoordinator)
+        }
     }
 }
 

@@ -9,9 +9,13 @@ import Foundation
 
 @Observable class AppCoordinator {
     let recordService = RecordService()
-    let accountCoordinator: AccountCoordinator
+    let accountCoordinator: AccountCoordinator!
+    var authenticationCoordinator: AuthenticationCoordinator!
+    
+    var tab: ViewTab = .home
     
     init() {
         self.accountCoordinator = AccountCoordinator(recordService: self.recordService)
+        self.authenticationCoordinator = AuthenticationCoordinator()
     }
 }

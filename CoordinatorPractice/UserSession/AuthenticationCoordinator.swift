@@ -11,9 +11,15 @@ import Foundation
     var viewModel: AuthenticationViewModel!
     var errorMessage: String?
     var showErrorMessage = false
+    var askForAuthentication = true
+    
+    var path: [Step] = []
     
     init() {
         self.viewModel = AuthenticationViewModel(coordinator: self)
+        path.append(.login)
+        
+        self.askForAuthentication = self.viewModel.user == nil
     }
     
     func displayError(message: String) {
@@ -26,4 +32,29 @@ import Foundation
         self.errorMessage = nil
     }
     
+    func navigateTo(_ step: Step) {
+        if step == .login {
+            self.popToRoot()
+        }
+        self.path.append(step)
+    }
+    
+    func popToRoot() {
+        self.path = [.login]
+    }
+    
+    func goBack() {
+        guard self.path.count > 1 else { return }
+        self.path.removeLast()
+    }
+    
+}
+
+extension AuthenticationCoordinator {
+    enum Step: Hashable {
+        case register
+        case login
+        case personalInformation
+        case success
+    }
 }

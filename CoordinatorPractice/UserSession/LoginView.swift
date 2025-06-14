@@ -1,13 +1,13 @@
 //
-//  RegisterView.swift
+//  LoginView.swift
 //  CoordinatorPractice
 //
-//  Created by Bernardo Santiago Marin on 26/05/25.
+//  Created by Bernardo Santiago Marin on 14/06/25.
 //
 
 import SwiftUI
 
-struct RegisterView: View {
+struct LoginView: View {
     @Bindable var coordinator: AuthenticationCoordinator
     
     var body: some View {
@@ -29,47 +29,37 @@ struct RegisterView: View {
                     .textFieldStyle(RoundedTextFieldStyle(headerText: "password",
                                                           systemImage: "key"))
                 
-                PasswordRequirementsChecklist(metRequirements: self.coordinator.viewModel.passwordValidationResult.met)
-                
-                TextField("confirm_password", text: $coordinator.viewModel.confirmPassword)
-                    .textContentType(.newPassword)
-                    .autocorrectionDisabled(true)
-                    .autocapitalization(.none)
-                    .textFieldStyle(RoundedTextFieldStyle(headerText: "confirm_password",
-                                                          systemImage: "key"))
-                
-                LoginButtonLink
+                RegisterButtonLink
                 
                 if coordinator.viewModel.isBusy {
                     ProgressView()
                 } else {
-                    Button("Create account") {
+                    Button("Login") {
                         Task {
-                            await coordinator.viewModel.signup()
+                            await coordinator.viewModel.login()
                         }
                     }
                     .buttonStyle(.borderedProminent)
-                    .disabled(!coordinator.viewModel.isValidEntry(requiresConfirmation: true))
+                    .disabled(!coordinator.viewModel.isValidEntry(requiresConfirmation: false))
                 }
             }
             .padding(.horizontal)
             .animation(.easeOut, value: coordinator.viewModel.isBusy)
         }
-        .navigationTitle("register")
+        .navigationTitle("Sign in")
         .navigationBarBackButtonHidden()
         .alert("Error", isPresented: $coordinator.showErrorMessage) {
             
         } message: {
             Text(coordinator.errorMessage ?? "Unknown error occurred.")
         }
-
     }
     
-    private var LoginButtonLink: some View {
+    private var RegisterButtonLink: some View {
         HStack {
-            Text("Been here before?")
-            Button("Login") {
-                coordinator.navigateTo(.login)
+            Text("Are you new in here?")
+            Button("Sign up") {
+                coordinator.navigateTo(.register)
             }
         }
     }
@@ -77,6 +67,6 @@ struct RegisterView: View {
 
 #Preview {
     NavigationStack {
-        RegisterView(coordinator: AuthenticationCoordinator())
+        LoginView(coordinator: AuthenticationCoordinator())
     }
 }

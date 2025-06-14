@@ -49,6 +49,7 @@ import Auth
         Task {
             subscription = await SupabaseInstance.shared.client.auth.onAuthStateChange({ [weak self] _, session in
                 self?.user = session?.user
+                self?.coordinator.askForAuthentication = session == nil
             })
         }
     }
@@ -79,6 +80,11 @@ import Auth
         return response.user
     }
     
+    // MARK: Sign out Flow
+    private func signOut() async throws {
+        try await SupabaseInstance.shared.client.auth.signOut()
+    }
+    
     /// Public method to authenticate the user. Handles errors
     ///
     @MainActor
@@ -88,6 +94,7 @@ import Auth
         
         do {
             try await self.authenticateWithEmail(email: self.email, password: self.password)
+            self.coordinator.navigateTo(.success)
         } catch {
             self.coordinator.displayError(message: error.localizedDescription)
         }
@@ -101,7 +108,19 @@ import Auth
         do {
             let user = try await self.registerWithEmail(email: self.email, password: self.password)
             try await UsersDatabase.shared.insertUser(user: user)
-            
+            self.coordinator.navigateTo(.personalInformation)
+        } catch {
+            self.coordinator.displayError(message: error.localizedDescription)
+        }
+    }
+    
+    @MainActor
+    public func logout() async {
+        self.isBusy = true
+        defer { self.isBusy = false }
+        
+        do {
+            try await self.signOut()
         } catch {
             self.coordinator.displayError(message: error.localizedDescription)
         }
